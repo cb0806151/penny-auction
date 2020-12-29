@@ -14,6 +14,13 @@ export const main =
         } ],
         ],
         (Auctioneer, Attendee) => {
-            exit();
+            Auctioneer.only(() => {
+                const { betPrice, deadline, potAddr } =
+                  declassify(interact.getParams());
+            });
+            Auctioneer.publish(betPrice, deadline, potAddr);
+            
+            transfer(balance()).to(potAddr);
+            commit();
         }
     );
