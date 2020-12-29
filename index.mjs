@@ -4,21 +4,18 @@ import * as backend from './build/index.main.mjs';
 (async () => {
     const stdlib = await loadStdlib();
     const startingBalance = stdlib.parseCurrency(10);
-
-    const accAlice = await stdlib.newTestAccount(startingBalance);
-    const accBob = await stdlib.newTestAccount(startingBalance);
-
-    const ctcAlice = accAlice.deploy(backend);
-    const ctcBob = accBob.deploy(backend, ctcAlice.getInfo());
+    
+    const accPot = await stdlib.newTestAccount(startingBalance);
+    const accAuctioneer = await stdlib.newTestAccount(startingBalance);
+    const ctcAuctioneer = accAuctioneer.deploy(backend);
 
     await Promise.all([
-        backend.Alice(
-            ctcAlice,
-            {},
-        ),
-        backend.Bob(
-            ctcBob,
-            {},
-        ),
+        backend.Auctioneer(ctcAuctioneer, {
+            getParams: () => ({
+                betPrice: 5,
+                deadline: 10,
+                potAddr: accPot,
+            }),
+        }),
     ]);
 })();
