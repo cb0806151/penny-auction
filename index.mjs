@@ -9,6 +9,9 @@ import * as backend from './build/index.main.mjs';
     const accAuctioneer = await stdlib.newTestAccount(startingBalance);
     const ctcAuctioneer = accAuctioneer.deploy(backend);
 
+    const fmt = (x) => stdlib.formatCurrency(x, 4);
+    const getBalance = async (who) => fmt(await stdlib.balanceOf(who));
+
     await Promise.all([
         backend.Auctioneer(ctcAuctioneer, {
             getParams: () => ({
@@ -18,4 +21,7 @@ import * as backend from './build/index.main.mjs';
             }),
         }),
     ]);
+
+    const potTotal = await getBalance(accPot);
+    console.log(`The final price of the pot is ${potTotal}`);
 })();
