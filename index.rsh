@@ -4,25 +4,24 @@
 export const main =
     Reach.App(
         {},
-        [['Auctioneer',
-        { getParams: Fun([], Object({ betPrice: UInt,
+        [['Pot',
+        { getParams: Fun([], Object({
                                         deadline: UInt,
-                                        potAddr: Address,
                                         potAmount: UInt})) }],
         ['Attendee',
         { getBet: Fun([], UInt),
             AttendeeWas: Fun([Address], Null),
         } ],
         ],
-        (Auctioneer, Attendee) => {
-            Auctioneer.only(() => {
-                const { betPrice, deadline, potAddr, potAmount } =
+        (Pot, Attendee) => {
+            Pot.only(() => {
+                const { deadline, potAmount } =
                   declassify(interact.getParams());
             });
-            Auctioneer.publish(betPrice, deadline, potAddr, potAmount);
+            Pot.publish(deadline, potAmount);
             commit();
 
-            Auctioneer.pay(potAmount);
+            Pot.pay(potAmount);
             commit();
 
             Attendee.only(() => {
@@ -30,7 +29,6 @@ export const main =
             });
             Attendee.publish(bet).pay(bet);
 
-            const winner = potAddr;
             transfer(balance()).to(Attendee);
             commit();
         }

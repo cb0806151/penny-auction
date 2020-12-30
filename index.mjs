@@ -7,12 +7,11 @@ const N = 10;
     const stdlib = await loadStdlib();
     const startingBalance = stdlib.parseCurrency(10);
     
-    const accPot = await stdlib.newTestAccount(startingBalance);
     const accAttendee_arr = await Promise.all( Array.from({length: N}, () => stdlib.newTestAccount(startingBalance)) );
 
-    const accAuctioneer = await stdlib.newTestAccount(startingBalance);
-    const ctcAuctioneer = accAuctioneer.deploy(backend);
-    const ctcInfo = ctcAuctioneer.getInfo();
+    const accPot = await stdlib.newTestAccount(startingBalance);
+    const ctcPot = accPot.deploy(backend);
+    const ctcInfo = ctcPot.getInfo();
 
     const fmt = (x) => stdlib.formatCurrency(x, 4);
     const getBalance = async (who) => fmt(await stdlib.balanceOf(who));
@@ -20,12 +19,10 @@ const N = 10;
     const bet = Math.floor(Math.random() * 10);
 
     await Promise.all([
-        backend.Auctioneer(ctcAuctioneer, {
+        backend.Pot(ctcPot, {
             getParams: () => ({
-                betPrice: stdlib.parseCurrency(5),
                 deadline: 10,
-                potAddr: accPot,
-                potAmount: stdlib.parseCurrency(5)
+                potAmount: stdlib.parseCurrency(1)
             }),
         }),
         backend.Attendee(accAttendee_arr[0].attach(backend, ctcInfo), {
@@ -36,6 +33,7 @@ const N = 10;
               }}) 
         })
     ]
+      
     // .concat(
     //     accAttendee_arr.map((accAttendee, i) => {
     //       const ctcAttendee = accAttendee.attach(backend, ctcInfo);
@@ -45,15 +43,14 @@ const N = 10;
     //         postBet: (() => bet),
     //         AttendeeWas: ((AttendeeAddr) => {
     //           if ( stdlib.addressEq(AttendeeAddr, accAttendee) ) {
-    //             console.log(`${AttendeeAddr} bet: ${bet}`);
+    //             console.log(`${AttendeeAddpotAmountr} bet: ${bet}`);
     //           } } )}); 
     //     } )
     //   )
       );
 
     let total = await getBalance(accAttendee_arr[0]);
-    console.log(total)
+    let potTotal = await getBalance(accPot);
+    console.log(`walks away with ${total} leaving the pot at ${potTotal}`);
 
-    const potTotal = await getBalance(accPot);
-    console.log(`The final price of the pot is ${potTotal}`);
 })();
