@@ -7,11 +7,9 @@ export const main =
         [['Pot',
         { getParams: Fun([], Object({
                                         deadline: UInt,
-                                        potAmount: UInt})) }],
-        ['Attendee',
-        { getBet: Fun([], UInt),
-            AttendeeWas: Fun([Address], Null),
-        } ],
+                                        potAmount: UInt,
+                                    })) }],
+        ['Attendee',{}],
         ],
         (Pot, Attendee) => {
             Pot.only(() => {
@@ -25,11 +23,11 @@ export const main =
             commit();
 
             Attendee.only(() => {
-                const bet = declassify(interact.getBet());
+                const bet = potAmount / 100;
             });
             Attendee.publish(bet).pay(bet);
 
-            transfer(balance()).to(Attendee);
+            transfer(balance()).to(Pot);
             commit();
         }
     );

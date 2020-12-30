@@ -25,32 +25,12 @@ const N = 10;
                 potAmount: stdlib.parseCurrency(1)
             }),
         }),
-        backend.Attendee(accAttendee_arr[0].attach(backend, ctcInfo), {
-          getBet: (() => stdlib.parseCurrency(5)),
-            AttendeeWas: ((AttendeeAddr) => {
-              if ( stdlib.addressEq(AttendeeAddr, accAttendee) ) {
-                console.log(`${AttendeeAddr} bet: ${bet}`);
-              }}) 
-        })
-    ]
-      
-    // .concat(
-    //     accAttendee_arr.map((accAttendee, i) => {
-    //       const ctcAttendee = accAttendee.attach(backend, ctcInfo);
-    //       const bet = Math.floor(Math.random() * 10);
-
-    //       return backend.Attendee(ctcAttendee, {
-    //         postBet: (() => bet),
-    //         AttendeeWas: ((AttendeeAddr) => {
-    //           if ( stdlib.addressEq(AttendeeAddr, accAttendee) ) {
-    //             console.log(`${AttendeeAddpotAmountr} bet: ${bet}`);
-    //           } } )}); 
-    //     } )
-    //   )
-      );
-
-    let total = await getBalance(accAttendee_arr[0]);
-    let potTotal = await getBalance(accPot);
-    console.log(`walks away with ${total} leaving the pot at ${potTotal}`);
+        backend.Attendee(accAttendee_arr[0].attach(backend, ctcInfo), {})
+    ]);
+    
+    const address = await accAttendee_arr[0].networkAccount.address;
+    const total = await getBalance(accAttendee_arr[0]);
+    const potTotal = await getBalance(accPot);
+    console.log(`${address} walks away with ${total} leaving the pot at ${potTotal}`);
 
 })();
