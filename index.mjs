@@ -20,14 +20,32 @@ const N = 10;
 
     await Promise.all([
         backend.Pot(ctcPot, {
+            informTimeout: () => {
+                console.log(`And the auction has finished`);
+            },
+            postPotAmount: async (count) => {
+                console.log(`The current price of the pot is ${count}`);
+            },
             getParams: () => ({
-                deadline: 10,
-                potAmount: stdlib.parseCurrency(1)
+                deadline: 5,
+                potAmount: stdlib.parseCurrency(5)
             }),
         }),
-        backend.Attendee(accAttendee_arr[0].attach(backend, ctcInfo), {})
+        backend.Attendee(accAttendee_arr[0].attach(backend, ctcInfo), {
+            informTimeout: () => {
+                console.log("stawp");
+                // process.exit(1);
+            },
+            submitBet: async (betAmount) => {
+                for ( let i = 0; i < 20; i++ ) {
+                    console.log(`${i} seconds remaining`)
+                    await stdlib.wait(1);
+                }
+                console.log(`The attendee places a bet of ${fmt(betAmount)}`)
+            }
+        })
     ]);
-    
+
     const address = await accAttendee_arr[0].networkAccount.address;
     const total = await getBalance(accAttendee_arr[0]);
     const potTotal = await getBalance(accPot);
