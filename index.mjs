@@ -9,22 +9,24 @@ const N = 10;
     
     const accAttendee_arr = await Promise.all( Array.from({length: N}, () => stdlib.newTestAccount(startingBalance)) );
 
-    const accPot = await stdlib.newTestAccount(startingBalance);
-    const ctcPot = accPot.deploy(backend);
-    const ctcInfo = ctcPot.getInfo();
+    const accAuctioneer = await stdlib.newTestAccount(startingBalance);
+    const ctcAuctioneer = accAuctioneer.deploy(backend);
+    const ctcInfo = ctcAuctioneer.getInfo();
 
     const fmt = (x) => stdlib.formatCurrency(x, 4);
     const getBalance = async (who) => fmt(await stdlib.balanceOf(who));
 
     const bet = Math.floor(Math.random() * 10);
 
+    console.log(`The auctioneer and the attendee both start the game at 10 each`)
+
     await Promise.all([
-        backend.Pot(ctcPot, {
+        backend.Auctioneer(ctcAuctioneer, {
             informTimeout: () => {
                 console.log(`And the auction has finished`);
             },
-            postPotAmount: async (count) => {
-                console.log(`The current price of the pot is ${count}`);
+            initialPotAmount: async (amount) => {
+                console.log(`The initial price of the pot is ${fmt(amount)}`);
             },
             getParams: () => ({
                 deadline: 5,
@@ -33,12 +35,11 @@ const N = 10;
         }),
         backend.Attendee(accAttendee_arr[0].attach(backend, ctcInfo), {
             informTimeout: () => {
-                console.log("stawp");
-                // process.exit(1);
+                console.log("The attendee has seen that the auction has finished");
             },
             submitBet: async (betAmount) => {
-                for ( let i = 0; i < 20; i++ ) {
-                    console.log(`${i} seconds remaining`)
+                for ( let i = 0; i < 15; i++ ) {
+                    process.stdout.write(".");
                     await stdlib.wait(1);
                 }
                 console.log(`The attendee places a bet of ${fmt(betAmount)}`)
@@ -48,7 +49,7 @@ const N = 10;
 
     const address = await accAttendee_arr[0].networkAccount.address;
     const total = await getBalance(accAttendee_arr[0]);
-    const potTotal = await getBalance(accPot);
-    console.log(`${address} walks away with ${total} leaving the pot at ${potTotal}`);
+    const potTotal = await getBalance(accAuctioneer);
+    console.log(`The attendee walks away with ${total} and the auctioneer with ${potTotal}`);
 
 })();

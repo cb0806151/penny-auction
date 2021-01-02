@@ -9,9 +9,9 @@ const TIMEOUT = 10;
 export const main =
     Reach.App(
         {},
-        [['Pot',
+        [['Auctioneer',
         {   ...Defaults,
-            postPotAmount: Fun([UInt], Null),
+            initialPotAmount: Fun([UInt], Null),
             getParams: Fun([], Object({
                                         deadline: UInt,
                                         potAmount: UInt,
@@ -21,27 +21,27 @@ export const main =
             submitBet: Fun([UInt], Null),
         }],
         ],
-        (Pot, Attendee) => {
+        (Auctioneer, Attendee) => {
             const informTimeout = () => {
-                
-                Pot.only(() => {
+                Auctioneer.only(() => {
                     interact.informTimeout();
-                    const potCount = balance();
-                    interact.postPotAmount(potCount);
                 });
                 Attendee.only(() => {
                     interact.informTimeout();
                 });
             };
 
-            Pot.only(() => {
+            Auctioneer.only(() => {
                 const { deadline, potAmount } =
                   declassify(interact.getParams());
             });
-            Pot.publish(deadline, potAmount);
+            Auctioneer.publish(deadline, potAmount);
             commit();
 
-            Pot.pay(potAmount);
+            Auctioneer.only(() => {
+                interact.initialPotAmount(potAmount);
+            });
+            Auctioneer.pay(potAmount);
             commit();
 
             Attendee.only(() => {
@@ -50,14 +50,7 @@ export const main =
             });
             Attendee.publish(bet)
                 .pay(bet)
-                .timeout(TIMEOUT, () => closeTo(Pot, informTimeout));
-            commit();
-
-            Pot.only(() => {
-                const potCount = balance();
-                interact.postPotAmount(potCount);
-            });
-            Pot.publish(potCount);
+                .timeout(TIMEOUT, () => closeTo(Auctioneer, informTimeout));
 
             transfer(balance()).to(Attendee);
             commit();
