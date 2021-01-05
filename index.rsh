@@ -1,7 +1,7 @@
 'reach 0.1';
 
 const Defaults = {
-    informTimeout: Fun([], Null),
+    auctionEnds: Fun([], Null),
 };
 
 const TIMEOUT = 10;
@@ -15,19 +15,26 @@ export const main =
             getParams: Fun([], Object({
                                         deadline: UInt,
                                         potAmount: UInt,
+                                        potAddress: Address,
                                     })) }],
-        ['Attendee',{
+        ['class', 'Attendee',{
             ...Defaults,
             submitBet: Fun([UInt], Null),
         }],
         ],
         (Auctioneer, Attendee) => {
-            const informTimeout = () => {
+            // const informTimeout = () => {
+            //     Auctioneer.only(() => {
+            //         interact.informTimeout();
+            //     });
+            //     Attendee.only(() => {
+            //         interact.informTimeout();
+            //     });
+            // };
+
+            const auctionEnds = () => {
                 Auctioneer.only(() => {
-                    interact.informTimeout();
-                });
-                Attendee.only(() => {
-                    interact.informTimeout();
+                    interact.auctionEnds();
                 });
             };
 
@@ -36,23 +43,45 @@ export const main =
                   declassify(interact.getParams());
             });
             Auctioneer.publish(deadline, potAmount);
-            commit();
 
-            Auctioneer.only(() => {
-                interact.initialPotAmount(potAmount);
-            });
-            Auctioneer.pay(potAmount);
-            commit();
+            // Auctioneer.only(() => {
+            //     interact.initialPotAmount(potAmount);
+            // });
+            // Auctioneer.pay(potAmount);
+            // commit();
 
-            Attendee.only(() => {
-                const bet = potAmount / 100;
-                interact.submitBet(bet);
-            });
-            Attendee.publish(bet)
-                .pay(bet)
-                .timeout(TIMEOUT, () => closeTo(Auctioneer, informTimeout));
+            // const [ auctionRunning, winnerAddress ] =
+            //     parallel_reduce([true, potAddress])
+            //     .invariant()
+            //     .while(auctionRunning)
+            //     .case(Attendee, (() => ({
 
-            transfer(balance()).to(Attendee);
+            //         })),
+            //         ((bet) => {
+
+            //         }))
+            //     .timeout(deadline, () => {
+            //         auctionEnds();
+            //         return [ false, winnerAddress ];
+            //         })
+            // commit();
+
+            // Auctioneer.only(() => {
+            //     interact.initialPotAmount(potAmount);
+            // });
+            // Auctioneer.pay(potAmount);
+            // commit();
+
+            // Attendee.only(() => {
+            //     const bet = potAmount / 100;
+            //     interact.submitBet(bet);
+            // });
+            // Attendee.publish(bet)
+            //     .pay(bet)
+            //     .timeout(TIMEOUT, () => closeTo(Auctioneer, informTimeout));
+
+            transfer(balance()).to(Auctioneer);
             commit();
+            auctionEnds();
         }
     );

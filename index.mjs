@@ -22,7 +22,7 @@ const N = 10;
 
     await Promise.all([
         backend.Auctioneer(ctcAuctioneer, {
-            informTimeout: () => {
+            auctionEnds: () => {
                 console.log(`And the auction has finished`);
             },
             initialPotAmount: async (amount) => {
@@ -30,22 +30,35 @@ const N = 10;
             },
             getParams: () => ({
                 deadline: 5,
-                potAmount: stdlib.parseCurrency(5)
+                potAmount: stdlib.parseCurrency(5),
+                potAddress: accAuctioneer
             }),
         }),
-        backend.Attendee(accAttendee_arr[0].attach(backend, ctcInfo), {
-            informTimeout: () => {
-                console.log("The attendee has seen that the auction has finished");
-            },
-            submitBet: async (betAmount) => {
-                for ( let i = 0; i < 15; i++ ) {
-                    process.stdout.write(".");
-                    await stdlib.wait(1);
+        // backend.Attendee(accAttendee_arr[0].attach(backend, ctcInfo), {
+        //     // informTimeout: () => {
+        //     //     console.log("The attendee has seen that the auction has finished");
+        //     // },
+        //     submitBet: async (betAmount) => {
+        //         for ( let i = 0; i < 15; i++ ) {
+        //             process.stdout.write(".");
+        //             await stdlib.wait(1);
+        //         }
+        //         console.log(`The attendee places a bet of ${fmt(betAmount)}`)
+        //     }
+        // })
+    ].concat(
+        accAttendee_arr.map((accAttendee, i) => {
+            const ctcAttendee = accAttendee.attach(backend, ctcInfo);
+            return backend.Attendee(ctcAttendee, {
+                auctionEnds: () => {
+                    return;
+                },
+                submitBet: async(betAmount) => {
+                    console.log(`The attendee places a bet of ${fmt(betAmount)}`);
                 }
-                console.log(`The attendee places a bet of ${fmt(betAmount)}`)
-            }
+            })
         })
-    ]);
+    ));
 
     const address = await accAttendee_arr[0].networkAccount.address;
     const total = await getBalance(accAttendee_arr[0]);
