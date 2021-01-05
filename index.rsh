@@ -25,15 +25,6 @@ export const main =
         }],
         ],
         (Auctioneer, Attendee) => {
-            // const informTimeout = () => {
-            //     Auctioneer.only(() => {
-            //         interact.informTimeout();
-            //     });
-            //     Attendee.only(() => {
-            //         interact.informTimeout();
-            //     });
-            // };
-
             const auctionEnds = () => {
                 Auctioneer.only(() => {
                     interact.auctionEnds();
@@ -45,16 +36,16 @@ export const main =
                   declassify(interact.getParams());
             });
             Auctioneer.publish(deadline, potAmount, potAddress);
+            commit();
 
-            // Auctioneer.only(() => {
-            //     interact.initialPotAmount(potAmount);
-            // });
-            // Auctioneer.pay(potAmount);
-            // commit();
+            Auctioneer.only(() => {
+                interact.initialPotAmount(potAmount);
+            });
+            Auctioneer.pay(potAmount);
 
-            const [ auctionRunning, winnerAddress ] =
-                parallel_reduce([ true, potAddress ])
-                .invariant()
+            const [ currentPot, auctionRunning, winnerAddress ] =
+                parallel_reduce([ 10, true, potAddress ])
+                .invariant(balance() == currentPot)
                 .while(auctionRunning)
                 .case(Attendee, (() => ({
                         when: declassify(interact.mayBet()),
@@ -62,31 +53,18 @@ export const main =
                     (() => (balance() / 100)),
                     ((bet) => {
                         const address = this;
+                        const betValue = (balance() / 100);
                         Attendee.only(() => interact
-                            .placedBet(address, 
-                            (balance() / 100)));
-                        return [ true, address ];
+                            .placedBet(address, betValue));
+                        return [ currentPot + betValue, true, address ];
                     }))
                 .timeout(deadline, () => {
+                    Auctioneer.publish();
                     auctionEnds();
-                    return [ false, winnerAddress ];
+                    return [ currentPot, false, winnerAddress ];
                     });
 
-            // Auctioneer.only(() => {
-            //     interact.initialPotAmount(potAmount);
-            // });
-            // Auctioneer.pay(potAmount);
-            // commit();
-
-            // Attendee.only(() => {
-            //     const bet = potAmount / 100;
-            //     interact.submitBet(bet);
-            // });
-            // Attendee.publish(bet)
-            //     .pay(bet)
-            //     .timeout(TIMEOUT, () => closeTo(Auctioneer, informTimeout));
-
-            transfer(balance()).to(Auctioneer);
+            transfer(balance()).to(winnerAddress);
             commit();
             auctionEnds();
         }

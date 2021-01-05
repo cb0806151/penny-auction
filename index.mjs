@@ -1,7 +1,7 @@
 import { loadStdlib } from '@reach-sh/stdlib';
 import * as backend from './build/index.main.mjs';
 
-const N = 10;
+const N = 1;
 
 (async () => {
     const stdlib = await loadStdlib();
@@ -34,18 +34,6 @@ const N = 10;
                 potAddress: accAuctioneer
             }),
         }),
-        // backend.Attendee(accAttendee_arr[0].attach(backend, ctcInfo), {
-        //     // informTimeout: () => {
-        //     //     console.log("The attendee has seen that the auction has finished");
-        //     // },
-        //     submitBet: async (betAmount) => {
-        //         for ( let i = 0; i < 15; i++ ) {
-        //             process.stdout.write(".");
-        //             await stdlib.wait(1);
-        //         }
-        //         console.log(`The attendee places a bet of ${fmt(betAmount)}`)
-        //     }
-        // })
     ].concat(
         accAttendee_arr.map((accAttendee, i) => {
             const ctcAttendee = accAttendee.attach(backend, ctcInfo);
