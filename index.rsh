@@ -20,6 +20,8 @@ export const main =
         ['class', 'Attendee',{
             ...Defaults,
             submitBet: Fun([UInt], Null),
+            placedBet: Fun([Address, UInt], Null),
+            mayBet: Fun([], Bool),
         }],
         ],
         (Auctioneer, Attendee) => {
@@ -39,10 +41,10 @@ export const main =
             };
 
             Auctioneer.only(() => {
-                const { deadline, potAmount } =
+                const { deadline, potAmount, potAddress } =
                   declassify(interact.getParams());
             });
-            Auctioneer.publish(deadline, potAmount);
+            Auctioneer.publish(deadline, potAmount, potAddress);
 
             // Auctioneer.only(() => {
             //     interact.initialPotAmount(potAmount);
@@ -50,21 +52,25 @@ export const main =
             // Auctioneer.pay(potAmount);
             // commit();
 
-            // const [ auctionRunning, winnerAddress ] =
-            //     parallel_reduce([true, potAddress])
-            //     .invariant()
-            //     .while(auctionRunning)
-            //     .case(Attendee, (() => ({
-
-            //         })),
-            //         ((bet) => {
-
-            //         }))
-            //     .timeout(deadline, () => {
-            //         auctionEnds();
-            //         return [ false, winnerAddress ];
-            //         })
-            // commit();
+            const [ auctionRunning, winnerAddress ] =
+                parallel_reduce([ true, potAddress ])
+                .invariant()
+                .while(auctionRunning)
+                .case(Attendee, (() => ({
+                        when: declassify(interact.mayBet()),
+                    })),
+                    (() => (potAmount / 100)),
+                    ((bet) => {
+                        const address = this;
+                        Attendee.only(() => interact
+                            .placedBet(address, 
+                            (potAmount / 100)));
+                        return [ true, address ];
+                    }))
+                .timeout(deadline, () => {
+                    auctionEnds();
+                    return [ false, winnerAddress ];
+                    });
 
             // Auctioneer.only(() => {
             //     interact.initialPotAmount(potAmount);
