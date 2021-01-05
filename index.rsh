@@ -59,12 +59,12 @@ export const main =
                 .case(Attendee, (() => ({
                         when: declassify(interact.mayBet()),
                     })),
-                    (() => (potAmount / 100)),
+                    (() => (balance() / 100)),
                     ((bet) => {
                         const address = this;
                         Attendee.only(() => interact
                             .placedBet(address, 
-                            (potAmount / 100)));
+                            (balance() / 100)));
                         return [ true, address ];
                     }))
                 .timeout(deadline, () => {
