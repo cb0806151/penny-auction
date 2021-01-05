@@ -46,13 +46,14 @@ const N = 1;
                 },
                 placedBet: async (attendeeAddress, betAmount) => {
                     if ( stdlib.addressEq(attendeeAddress, accAttendee) ) {
-                        console.log(`${attendeeAddress} bet: ${betAmount}`);
+                        console.log(`${attendeeAddress} bet: ${fmt(betAmount)}`);
                     }
                 },
                 mayBet: async (betAmount) => {
-                    const balance = await getBalance(accAttendee);
-                    return balance > betAmount;
-                }
+                    const balance = await getBalance(accTester_arr[0]);
+                    const mayBet = balance > fmt(betAmount);
+                    return mayBet;
+                },
             })
         })
     ));

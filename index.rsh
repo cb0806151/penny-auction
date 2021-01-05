@@ -44,14 +44,14 @@ export const main =
             Auctioneer.pay(potAmount);
 
             const [ currentPot, auctionRunning, winnerAddress ] =
-                parallel_reduce([ 10, true, potAddress ])
+                parallel_reduce([ 5, true, potAddress ])
                 .invariant(balance() == currentPot)
                 .while(auctionRunning)
                 .case(Attendee, (() => ({
                         when: declassify(interact.mayBet()),
                     })),
                     (() => (balance() / 100)),
-                    ((bet) => {
+                    ((didBet) => {
                         const address = this;
                         const betValue = (balance() / 100);
                         Attendee.only(() => interact
@@ -64,7 +64,7 @@ export const main =
                     return [ currentPot, false, winnerAddress ];
                     });
 
-            transfer(balance()).to(winnerAddress);
+            transfer(balance()).to(Auctioneer);
             commit();
             auctionEnds();
         }
