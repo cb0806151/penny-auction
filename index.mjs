@@ -50,7 +50,7 @@ const N = 1;
                     }
                 },
                 mayBet: async (betAmount) => {
-                    const balance = await getBalance(accTester_arr[0]);
+                    const balance = await getBalance(accAttendee);
                     const mayBet = balance > fmt(betAmount);
                     return mayBet;
                 },
