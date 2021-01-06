@@ -21,7 +21,7 @@ export const main =
             ...Defaults,
             submitBet: Fun([UInt], Null),
             placedBet: Fun([Address, UInt], Null),
-            mayBet: Fun([], Bool),
+            mayBet: Fun([UInt], Bool),
         }],
         ],
         (Auctioneer, Attendee) => {
@@ -48,7 +48,7 @@ export const main =
                 .invariant(balance() == currentPot)
                 .while(auctionRunning)
                 .case(Attendee, (() => ({
-                        when: declassify(interact.mayBet()),
+                        when: declassify(interact.mayBet((balance() / 100))),
                     })),
                     (() => (balance() / 100)),
                     ((didBet) => {
@@ -64,7 +64,7 @@ export const main =
                     return [ currentPot, false, winnerAddress ];
                     });
 
-            transfer(balance()).to(Auctioneer);
+            transfer(balance()).to(winnerAddress);
             commit();
             auctionEnds();
         }
