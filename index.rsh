@@ -1,8 +1,6 @@
 'reach 0.1';
 
-const Defaults = {
-    auctionEnds: Fun([], Null),
-};
+
 
 const TIMEOUT = 10;
 
@@ -10,7 +8,7 @@ export const main =
     Reach.App(
         {},
         [['Auctioneer',
-        {   ...Defaults,
+        {   auctionEnds: Fun([UInt], Null),
             initialPotAmount: Fun([UInt], Null),
             getParams: Fun([], Object({
                                         deadline: UInt,
@@ -18,16 +16,15 @@ export const main =
                                         potAddress: Address,
                                     })) }],
         ['class', 'Attendee',{
-            ...Defaults,
             submitBet: Fun([UInt], Null),
             placedBet: Fun([Address, UInt], Null),
             mayBet: Fun([UInt], Bool),
         }],
         ],
         (Auctioneer, Attendee) => {
-            const auctionEnds = () => {
+            const auctionEnds = (potBalance) => {
                 Auctioneer.only(() => {
-                    interact.auctionEnds();
+                    interact.auctionEnds(potBalance);
                 });
             };
 
@@ -48,24 +45,23 @@ export const main =
                 .invariant(balance() == currentPot)
                 .while(auctionRunning)
                 .case(Attendee, (() => ({
-                        when: declassify(interact.mayBet((balance() / 100))),
+                        when: declassify(interact.mayBet((currentPot / 100))),
                     })),
-                    (() => (balance() / 100)),
+                    (() => (currentPot / 100)),
                     (() => {
                         const address = this;
-                        const betValue = (balance() / 100);
+                        const betValue = (currentPot / 100);
                         Attendee.only(() => interact
                             .placedBet(address, betValue));
                         return [ currentPot + betValue, true, address ];
                     }))
                 .timeout(deadline, () => {
                     Auctioneer.publish();
-                    auctionEnds();
                     return [ currentPot, false, winnerAddress ];
                     });
 
+            auctionEnds(currentPot);
             transfer(balance()).to(winnerAddress);
             commit();
-            auctionEnds();
         }
     );

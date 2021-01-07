@@ -1,7 +1,7 @@
 import { loadStdlib } from '@reach-sh/stdlib';
 import * as backend from './build/index.main.mjs';
 
-const N = 1;
+const N = 3;
 
 (async () => {
     const stdlib = await loadStdlib();
@@ -18,12 +18,23 @@ const N = 1;
 
     const bet = Math.floor(Math.random() * 10);
 
-    console.log(`The auctioneer and the attendee both start the game at 10 each`)
+    const getAddressBalance = async (accountNumber) => {
+        const voterBalance = await getBalance(accAttendee_arr[accountNumber]);
+        const address = await accAttendee_arr[accountNumber].networkAccount.address;
+        console.log(`${address} has a balance of ${voterBalance}`);
+    }
+    const listParticipantBalances = async () => {
+        for ( let i = 0; i < N; i++) {
+            await getAddressBalance(i);
+        }
+    }
+
+    console.log(`\nThe auctioneer and the attendees start the game at 10 each`)
 
     await Promise.all([
         backend.Auctioneer(ctcAuctioneer, {
-            auctionEnds: () => {
-                console.log(`And the auction has finished`);
+            auctionEnds: async (potBalance) => {
+                console.log(`And the auction has finished with the pot at ${fmt(potBalance)}`);
             },
             initialPotAmount: async (amount) => {
                 console.log(`The initial price of the pot is ${fmt(amount)}`);
@@ -38,9 +49,6 @@ const N = 1;
         accAttendee_arr.map((accAttendee, i) => {
             const ctcAttendee = accAttendee.attach(backend, ctcInfo);
             return backend.Attendee(ctcAttendee, {
-                auctionEnds: () => {
-                    return;
-                },
                 submitBet: async(betAmount) => {
                     console.log(`The attendee places a bet of ${fmt(betAmount)}`);
                 },
@@ -52,15 +60,17 @@ const N = 1;
                 mayBet: async (betAmount) => {
                     const balance = await getBalance(accAttendee);
                     const mayBet = balance > fmt(betAmount);
+                    if ( Math.random() <= 0.25 ) {
+                    for ( let i = 0; i < 11; i++ ) {
+                        await stdlib.wait(1); }
+                    }
                     return mayBet;
                 },
             })
         })
     ));
-
-    const address = await accAttendee_arr[0].networkAccount.address;
-    const total = await getBalance(accAttendee_arr[0]);
-    const potTotal = await getBalance(accAuctioneer);
-    console.log(`The attendee walks away with ${total} and the auctioneer with ${potTotal}`);
+    const auctioneerBalance = await getBalance(accAuctioneer);
+    console.log(`And the auctioneer is left with ${auctioneerBalance}`);
+    await listParticipantBalances();
 
 })();
