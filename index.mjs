@@ -49,21 +49,20 @@ const N = 3;
         accAttendee_arr.map((accAttendee, i) => {
             const ctcAttendee = accAttendee.attach(backend, ctcInfo);
             return backend.Attendee(ctcAttendee, {
-                submitBet: async(betAmount) => {
-                    console.log(`The attendee places a bet of ${fmt(betAmount)}`);
-                },
                 placedBet: async (attendeeAddress, betAmount) => {
                     if ( stdlib.addressEq(attendeeAddress, accAttendee) ) {
-                        console.log(`${attendeeAddress} bet: ${fmt(betAmount)}`);
+                        const balance = await getBalance(accAttendee);
+                        console.log(`${attendeeAddress} bet: ${fmt(betAmount)} leaving their balance at ${balance}`);
+                    }
+                    if ( Math.random() <= 0.25 ) {
+                        for ( let i = 0; i < 11; i++ ) {
+                            await stdlib.wait(1); 
+                        }
                     }
                 },
                 mayBet: async (betAmount) => {
                     const balance = await getBalance(accAttendee);
                     const mayBet = balance > fmt(betAmount);
-                    if ( Math.random() <= 0.25 ) {
-                    for ( let i = 0; i < 11; i++ ) {
-                        await stdlib.wait(1); }
-                    }
                     return mayBet;
                 },
             })

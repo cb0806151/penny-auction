@@ -16,7 +16,6 @@ export const main =
                                         potAddress: Address,
                                     })) }],
         ['class', 'Attendee',{
-            submitBet: Fun([UInt], Null),
             placedBet: Fun([Address, UInt], Null),
             mayBet: Fun([UInt], Bool),
         }],
@@ -26,6 +25,10 @@ export const main =
                 Auctioneer.only(() => {
                     interact.auctionEnds(potBalance);
                 });
+            };
+
+            const getBet = (potBalance) => {
+                return potBalance / 100;
             };
 
             Auctioneer.only(() => {
@@ -45,14 +48,13 @@ export const main =
                 .invariant(balance() == currentPot)
                 .while(auctionRunning)
                 .case(Attendee, (() => ({
-                        when: declassify(interact.mayBet((currentPot / 100))),
+                        when: declassify(interact.mayBet(getBet(currentPot))),
                     })),
-                    (() => (currentPot / 100)),
+                    (() => getBet(currentPot)),
                     (() => {
                         const address = this;
-                        const betValue = (currentPot / 100);
-                        Attendee.only(() => interact
-                            .placedBet(address, betValue));
+                        const betValue = getBet(currentPot);
+                        Attendee.only(() => interact.placedBet(address, betValue));
                         return [ currentPot + betValue, true, address ];
                     }))
                 .timeout(deadline, () => {
