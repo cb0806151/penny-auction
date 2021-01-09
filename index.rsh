@@ -43,27 +43,28 @@ export const main =
             });
             Auctioneer.pay(potAmount);
 
-            const [ currentPot, auctionRunning, winnerAddress ] =
-                parallel_reduce([ potAmount, true, potAddress ])
-                .invariant(balance() == currentPot)
-                .while(auctionRunning)
-                .case(Attendee, (() => ({
-                        when: declassify(interact.mayBet(getBet(currentPot))),
-                    })),
-                    (() => getBet(currentPot)),
-                    (() => {
-                        const address = this;
-                        const betValue = getBet(currentPot);
-                        Attendee.only(() => interact.placedBet(address, betValue));
-                        return [ currentPot + betValue, true, address ];
-                    }))
-                .timeout(deadline, () => {
-                    Auctioneer.publish();
-                    return [ currentPot, false, winnerAddress ];
-                    });
+            // const [ currentPot, auctionRunning, winnerAddress ] =
+            //     parallel_reduce([ potAmount, true, potAddress ])
+            //     .invariant(balance() == currentPot)
+            //     .while(auctionRunning)
+            //     .case(Attendee, (() => ({
+            //             when: declassify(interact.mayBet(getBet(currentPot))),
+            //         })),
+            //         (() => getBet(currentPot)),
+            //         (() => {
+            //             const address = this;
+            //             const betValue = getBet(currentPot);
+            //             Attendee.only(() => interact.placedBet(address, betValue));
+            //             return [ currentPot + betValue, true, address ];
+            //         }))
+            //     .timeout(deadline, () => {
+            //         Auctioneer.publish();
+            //         return [ currentPot, false, winnerAddress ];
+            //         });
 
-            auctionEnds(currentPot);
-            transfer(balance()).to(winnerAddress);
+            // auctionEnds(currentPot);
+            // transfer(balance()).to(winnerAddress);
+            transfer(balance()).to(Auctioneer);
             commit();
         }
     );
