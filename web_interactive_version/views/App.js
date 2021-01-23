@@ -27,6 +27,17 @@ exports.ConnectAccount = class extends React.Component {
     }
   }
 
+exports.AccountUnavailable = class extends React.Component {
+  render() {
+    return (
+      <div>
+        No accounts were found. 
+        Please enable accounts for this webpage and reload.
+      </div>
+    )
+  }
+}
+
 exports.FundAccount = class extends React.Component {
   render() {
     const {bal, standardUnit, defaultFundAmt, parent} = this.props;
