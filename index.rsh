@@ -4,21 +4,27 @@
 
 const TIMEOUT = 10;
 
+const Auctioneer = {   
+        auctionEnds: Fun([UInt], Null),
+        initialPotAmount: Fun([UInt], Null),
+        getParams: Fun([], Object({
+                                deadline: UInt,
+                                potAmount: UInt,
+                                potAddress: Address,
+                            })) 
+                        }
+
+const Attendee = {
+        placedBet: Fun([Address, UInt], Null),
+        mayBet: Fun([UInt], Bool),
+}
+
 export const main =
     Reach.App(
         {},
-        [['Auctioneer',
-        {   auctionEnds: Fun([UInt], Null),
-            initialPotAmount: Fun([UInt], Null),
-            getParams: Fun([], Object({
-                                        deadline: UInt,
-                                        potAmount: UInt,
-                                        potAddress: Address,
-                                    })) }],
-        ['class', 'Attendee',{
-            placedBet: Fun([Address, UInt], Null),
-            mayBet: Fun([UInt], Bool),
-        }],
+        [
+            ['Auctioneer', Auctioneer],
+            ['class', 'Attendee', Attendee],
         ],
         (Auctioneer, Attendee) => {
             const auctionEnds = (potBalance) => {

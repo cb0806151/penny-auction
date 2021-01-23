@@ -9,6 +9,7 @@ import * as reach from '@reach-sh/stdlib/ETH';
 
 const {standardUnit} = reach;
 const defaults = {defaultFundAmt: '10', defaultWager: '3', standardUnit};
+let acc = undefined
 
 
 class App extends React.Component {
@@ -17,7 +18,6 @@ class App extends React.Component {
         this.state = {view: 'ConnectAccount', ...defaults};
     }
     async componentDidMount() {
-        let acc = undefined
         try {
           acc = await reach.getDefaultAccount();
         } catch (e) {
@@ -47,9 +47,19 @@ class App extends React.Component {
 class Auctioneer extends React.Component {
     constructor(props) {
       super(props);
-      this.state = {view: 'SetWager'};
-  }
-  setWager(wager) { this.setState({view: 'Deploy', wager}); }
+      this.state = {view: 'SetDeadline'};
+    }
+    setWager(wager) { this.setState({view: 'Deploy', wager}); }
+    setDeadline() { this.setState({view: 'SetWager'})}
+    async getParams() {
+      const params = {
+        deadline: 5,
+        potAmount: this.wager,
+        potAddress: acc,
+      }
+      console.log(params)
+      return params;
+    }
     async deploy() {
       const ctc = this.props.acc.deploy(backend);
       this.setState({view: 'Deploying', ctc});
