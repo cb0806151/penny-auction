@@ -10,7 +10,8 @@ import * as reach from '@reach-sh/stdlib/ETH';
 const {standardUnit} = reach;
 const defaults = {defaultFundAmt: '10', defaultWager: '3', standardUnit};
 let acc = undefined
-
+const fmt = (x) => reach.formatCurrency(x, 4);
+const getBalance = async (who) => fmt(await reach.balanceOf(who));
 
 class App extends React.Component {
     constructor(props) {
@@ -25,7 +26,7 @@ class App extends React.Component {
           return;
         }
         const balAtomic = await reach.balanceOf(acc);
-        const bal = reach.formatCurrency(balAtomic, 4);
+        const bal = fmt(balAtomic);
         this.setState({acc, bal});
         try {
             const faucet = await reach.getFaucet();
@@ -55,10 +56,16 @@ class Auctioneer extends React.Component {
       const params = {
         deadline: 5,
         potAmount: this.wager,
-        potAddress: acc,
+        potAddress: this.props.acc,
       }
       console.log(params)
       return params;
+    }
+    initialPotAmount(amount) {
+      console.log(`The initial price of the pot is ${fmt(amount)}`);
+    }
+    auctionEnds(potBalance) {
+      console.log(`And the auction has finished with the pot at ${fmt(potBalance)}`);
     }
     async deploy() {
       const ctc = this.props.acc.deploy(backend);
@@ -78,9 +85,21 @@ class Attendee extends React.Component {
       this.state = {view: 'Attach'};
     }
     attach(ctcInfoStr) {
-        const ctc = this.props.acc.attach(backend, JSON.parse(ctcInfoStr));
-        this.setState({view: 'Attaching'});
-        backend.Attendee(ctc, this);
+      const ctc = this.props.acc.attach(backend, JSON.parse(ctcInfoStr));
+      this.setState({view: 'Attaching'});
+      backend.Attendee(ctc, this);
+    }
+    async placedBet(attendeeAddress, betAmount) {
+      if ( reach.addressEq(attendeeAddress, this.props.acc) ) {
+        const balance = await getBalance(this.props.acc);
+        console.log(`${attendeeAddress} bet: ${fmt(betAmount)} leaving their balance at ${balance}`);
+      }
+    }
+    async mayBet(betAmount) {
+      const balance = await getBalance(this.props.acc);
+      const mayBet = balance > fmt(betAmount);
+      if (mayBet) return Math.random() > 0.75;
+      return mayBet;
     }
     render() { return renderView(this, AttendeeViews); }
   }

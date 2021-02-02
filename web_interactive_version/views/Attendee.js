@@ -37,4 +37,35 @@ exports.Attach = class extends React.Component {
     }
 }
 
+exports.Attaching = class extends React.Component {
+    render() {
+        return (
+            <div>
+                Attaching, please wait...
+            </div>
+        );
+    }
+}
+
+exports.AcceptTerms = class extends React.Component {
+    render() {
+        const {wager, standardUnit, parent} = this.props;
+        const {disabled} = this.state || {};
+        return (
+            <div>
+                The terms of the auction are:
+                <br />Wager: {wager} {standardUnit}
+                <br />
+                <button
+                    disabled={disabled}
+                    onClick={() => {
+                        this.setState({disabled: true});
+                        parent.termsAccepted();
+                    }}
+                >Accepted terms and pay wager</button>
+            </div>
+        );
+    }
+}
+
 export default exports;
