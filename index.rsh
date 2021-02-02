@@ -4,9 +4,8 @@
 
 const TIMEOUT = 10;
 
-const Auctioneer = {   
+const Auc = {   
         auctionEnds: Fun([UInt], Null),
-        initialPotAmount: Fun([UInt], Null),
         getParams: Fun([], Object({
                                 deadline: UInt,
                                 potAmount: UInt,
@@ -14,7 +13,7 @@ const Auctioneer = {
                             })) 
                         }
 
-const Attendee = {
+const Att = {
         placedBet: Fun([Address, UInt], Null),
         mayBet: Fun([UInt], Bool),
 }
@@ -23,8 +22,8 @@ export const main =
     Reach.App(
         {},
         [
-            ['Auctioneer', Auctioneer],
-            ['class', 'Attendee', Attendee],
+            ['Auctioneer', Auc],
+            ['class', 'Attendee', Att],
         ],
         (Auctioneer, Attendee) => {
             const auctionEnds = (potBalance) => {
@@ -43,11 +42,6 @@ export const main =
             });
             Auctioneer.publish(deadline, potAmount, potAddress);
             commit();
-
-            Auctioneer.only(() => {
-                interact.initialPotAmount(potAmount);
-            });
-            Auctioneer.pay(potAmount);
 
             const [ currentPot, auctionRunning, winnerAddress ] =
                 parallel_reduce([ potAmount, true, potAddress ])
@@ -70,7 +64,6 @@ export const main =
 
             auctionEnds(currentPot);
             transfer(balance()).to(winnerAddress);
-            // transfer(balance()).to(Auctioneer);
             commit();
         }
     );

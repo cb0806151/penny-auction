@@ -1,8 +1,8 @@
 import React from 'react';
-import AppViews from './web_interactive_version/views/App';
-import AuctioneerViews from './web_interactive_version/views/Auctioneer';
-import AttendeeViews from './web_interactive_version/views/Attendee';
-import {renderDOM, renderView} from './web_interactive_version/views/render';
+import AppViews from './views/App';
+import AuctioneerViews from './views/Auctioneer';
+import AttendeeViews from './views/Attendee';
+import {renderDOM, renderView} from './views/render';
 import './index.css';
 import * as backend from './build/index.main.mjs';
 import * as reach from '@reach-sh/stdlib/ETH';

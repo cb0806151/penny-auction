@@ -36,9 +36,6 @@ const N = 3;
             auctionEnds: async (potBalance) => {
                 console.log(`And the auction has finished with the pot at ${fmt(potBalance)}`);
             },
-            initialPotAmount: async (amount) => {
-                console.log(`The initial price of the pot is ${fmt(amount)}`);
-            },
             getParams: () => ({
                 deadline: 5,
                 potAmount: stdlib.parseCurrency(5),
@@ -52,13 +49,15 @@ const N = 3;
                 placedBet: async (attendeeAddress, betAmount) => {
                     if ( stdlib.addressEq(attendeeAddress, accAttendee) ) {
                         const balance = await getBalance(accAttendee);
-                        console.log(`${attendeeAddress} bet: ${fmt(betAmount)} leaving their balance at ${balance}`);
+                        console.log(`\n${accAttendee.networkAccount.address} bet: ${fmt(betAmount)} leaving their balance at ${balance}\n`);
+                    } else {
+                        console.log(`${accAttendee.networkAccount.address} saw that ${attendeeAddress} bet ${fmt(betAmount)}`)
                     }
                 },
                 mayBet: async (betAmount) => {
                     const balance = await getBalance(accAttendee);
                     const mayBet = balance > fmt(betAmount);
-                    if (mayBet) return Math.random() > 0.75;
+                    if (mayBet) return Math.random() > 0.5;
                     return mayBet;
                 },
             })
