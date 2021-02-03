@@ -40,7 +40,8 @@ export const main =
                 const { deadline, potAmount, potAddress } =
                   declassify(interact.getParams());
             });
-            Auctioneer.publish(deadline, potAmount, potAddress);
+            Auctioneer.publish(deadline, potAmount, potAddress)
+                    .pay(potAmount);
 
             const [ currentPot, auctionRunning, winnerAddress ] =
                 parallel_reduce([ potAmount, true, potAddress ])
