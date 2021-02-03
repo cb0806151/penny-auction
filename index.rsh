@@ -41,7 +41,6 @@ export const main =
                   declassify(interact.getParams());
             });
             Auctioneer.publish(deadline, potAmount, potAddress);
-            commit();
 
             const [ currentPot, auctionRunning, winnerAddress ] =
                 parallel_reduce([ potAmount, true, potAddress ])
