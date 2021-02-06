@@ -46,6 +46,9 @@ const N = 3;
         accAttendee_arr.map((accAttendee, i) => {
             const ctcAttendee = accAttendee.attach(backend, ctcInfo);
             return backend.Attendee(ctcAttendee, {
+                auctionEnds: async (potBalance) => {
+                    console.log(`And ${accAttendee.networkAccount.address} saw the auction has finished with the pot at ${fmt(potBalance)}`);
+                },
                 placedBet: async (attendeeAddress, betAmount) => {
                     if ( stdlib.addressEq(attendeeAddress, accAttendee) ) {
                         const balance = await getBalance(accAttendee);

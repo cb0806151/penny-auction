@@ -4,8 +4,12 @@
 
 const TIMEOUT = 10;
 
-const Auc = {   
+const Defaults = {
         auctionEnds: Fun([UInt], Null),
+}
+
+const Auc = {   
+        ...Defaults,
         getParams: Fun([], Object({
                                 deadline: UInt,
                                 potAmount: UInt,
@@ -14,6 +18,7 @@ const Auc = {
                         }
 
 const Att = {
+        ...Defaults,    
         placedBet: Fun([Address, UInt], Null),
         mayBet: Fun([UInt], Bool),
 }
@@ -27,7 +32,7 @@ export const main =
         ],
         (Auctioneer, Attendee) => {
             const auctionEnds = (potBalance) => {
-                Auctioneer.only(() => {
+                each([Auctioneer, Attendee], () => {
                     interact.auctionEnds(potBalance);
                 });
             };
