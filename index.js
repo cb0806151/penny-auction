@@ -1,8 +1,8 @@
 import React from 'react';
-import AppViews from './views/App';
-import AuctioneerViews from './views/Auctioneer';
-import AttendeeViews from './views/Attendee';
-import {renderDOM, renderView} from './views/render';
+import AppViews from './web_interactive_version/views/App';
+import AuctioneerViews from './web_interactive_version/views/Auctioneer';
+import AttendeeViews from './web_interactive_version/views/Attendee';
+import {renderDOM, renderView} from './web_interactive_version/views/render';
 import './index.css';
 import * as backend from './build/index.main.mjs';
 import * as reach from '@reach-sh/stdlib/ETH';
@@ -58,7 +58,6 @@ class Auctioneer extends React.Component {
         potAmount: this.wager,
         potAddress: this.props.acc,
       }
-      console.log(params)
       return params;
     }
     initialPotAmount(amount) {
@@ -94,6 +93,9 @@ class Attendee extends React.Component {
         const balance = await getBalance(this.props.acc);
         console.log(`${attendeeAddress} bet: ${fmt(betAmount)} leaving their balance at ${balance}`);
       }
+    }
+    auctionEnds(potBalance) {
+      console.log(`And the auction has finished with the pot at ${fmt(potBalance)}`);
     }
     async mayBet(betAmount) {
       const balance = await getBalance(this.props.acc);
